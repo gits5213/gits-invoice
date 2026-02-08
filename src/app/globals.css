@@ -19,12 +19,22 @@ body {
   background: var(--background);
 }
 
-/* Bluehost template screen display - landscape optimized */
-.bluehost-template {
+/* All templates - landscape optimized for screen display */
+.print-invoice {
   max-width: 297mm !important; /* A4 landscape width */
   width: 100%;
 }
 
+.print-invoice table {
+  table-layout: fixed !important;
+  width: 100% !important;
+}
+
+.print-invoice .overflow-x-auto {
+  overflow-x: visible !important;
+}
+
+/* Bluehost template specific optimizations */
 .bluehost-template table {
   table-layout: fixed !important;
   width: 100% !important;
@@ -51,17 +61,28 @@ body {
     border: none !important;
   }
 
-  /* Bluehost template print optimization */
-  .bluehost-template {
+  /* All templates - landscape optimized print styles */
+  .print-invoice {
     max-width: 100% !important;
+  }
+
+  .print-invoice table {
+    width: 100% !important;
+    table-layout: fixed !important;
+    border-collapse: collapse !important;
+  }
+
+  .print-invoice .overflow-x-auto {
+    overflow-x: visible !important;
+  }
+
+  /* Bluehost template specific print optimizations */
+  .bluehost-template {
     padding: 0.3cm !important;
   }
 
   .bluehost-template table {
     font-size: 8px !important;
-    width: 100% !important;
-    table-layout: fixed !important;
-    border-collapse: collapse !important;
   }
 
   .bluehost-template th,
@@ -102,15 +123,15 @@ body {
 
   /* Additional landscape-specific optimizations */
   @media print {
-    .bluehost-template {
+    .print-invoice {
       page-break-inside: avoid;
     }
 
-    .bluehost-template table {
+    .print-invoice table {
       page-break-inside: auto;
     }
 
-    .bluehost-template tr {
+    .print-invoice tr {
       page-break-inside: avoid;
       page-break-after: auto;
     }

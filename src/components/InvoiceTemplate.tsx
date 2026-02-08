@@ -156,7 +156,7 @@ export const InvoiceTemplate = forwardRef<HTMLDivElement, InvoiceTemplateProps>(
     return (
       <div
         ref={ref}
-        className={`print-invoice relative mx-auto w-full rounded-xl border border-neutral-200 bg-white shadow-lg dark:border-neutral-800 dark:bg-neutral-900 dark:shadow-neutral-950/50 ${pad.container} ${fontMap[d.fontFamily]} ${isReceipt ? "max-w-[100mm]" : isBluehost ? "max-w-[297mm] bluehost-template" : "max-w-[210mm]"} ${isBluehost ? "bluehost-template" : ""}`}
+        className={`print-invoice relative mx-auto w-full rounded-xl border border-neutral-200 bg-white shadow-lg dark:border-neutral-800 dark:bg-neutral-900 dark:shadow-neutral-950/50 ${pad.container} ${fontMap[d.fontFamily]} ${isReceipt ? "max-w-[100mm]" : "max-w-[297mm]"} ${isBluehost ? "bluehost-template" : ""}`}
         style={
           {
             "--invoice-accent": accent,
