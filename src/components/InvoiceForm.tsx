@@ -312,7 +312,7 @@ export function InvoiceForm({ data, onChange }: InvoiceFormProps) {
               value={data.to.phone ?? ""}
               onChange={(e) => updateTo({ phone: e.target.value })}
               className={inputClass}
-              placeholder="Phone"
+              placeholder="Phone / Account ID"
             />
           </div>
         </div>

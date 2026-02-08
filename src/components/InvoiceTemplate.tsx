@@ -1898,7 +1898,8 @@ export const InvoiceTemplate = forwardRef<HTMLDivElement, InvoiceTemplateProps>(
                     <span className="font-semibold text-neutral-900 dark:text-white">Account Name:</span> {data.to.name || "—"}
                   </p>
                   <p className="text-neutral-600 dark:text-neutral-400">
-                    <span className="font-semibold text-neutral-900 dark:text-white">Account ID:</span> {data.to.phone || "—"}
+                    <span className="font-semibold text-neutral-900 dark:text-white">Account ID:</span>{" "}
+                    {data.to.phone || data.poNumber || data.invoiceNumber.replace(/[^0-9]/g, "").slice(0, 9) || "—"}
                   </p>
                   <p className="text-neutral-600 dark:text-neutral-400">
                     <span className="font-semibold text-neutral-900 dark:text-white">Address:</span>{" "}
