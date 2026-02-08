@@ -156,7 +156,7 @@ export const InvoiceTemplate = forwardRef<HTMLDivElement, InvoiceTemplateProps>(
     return (
       <div
         ref={ref}
-        className={`print-invoice relative mx-auto w-full rounded-xl border border-neutral-200 bg-white shadow-lg dark:border-neutral-800 dark:bg-neutral-900 dark:shadow-neutral-950/50 ${pad.container} ${fontMap[d.fontFamily]} ${isReceipt ? "max-w-[100mm]" : "max-w-[210mm]"}`}
+        className={`print-invoice relative mx-auto w-full rounded-xl border border-neutral-200 bg-white shadow-lg dark:border-neutral-800 dark:bg-neutral-900 dark:shadow-neutral-950/50 ${pad.container} ${fontMap[d.fontFamily]} ${isReceipt ? "max-w-[100mm]" : isBluehost ? "max-w-[297mm] bluehost-template" : "max-w-[210mm]"} ${isBluehost ? "bluehost-template" : ""}`}
         style={
           {
             "--invoice-accent": accent,
@@ -1867,7 +1867,7 @@ export const InvoiceTemplate = forwardRef<HTMLDivElement, InvoiceTemplateProps>(
           /* Bluehost-style layout */
           <>
             {/* Header: Company name centered, Invoice number right */}
-            <div className={`${pad.section} border-b border-neutral-200 pb-6 dark:border-neutral-700`}>
+            <div className={`p-4 sm:p-6 border-b border-neutral-200 pb-4 dark:border-neutral-700`}>
               <div className="flex flex-col items-center text-center sm:flex-row sm:justify-between sm:text-left">
                 <div className="mb-4 sm:mb-0">
                   {data.logo && (
@@ -1891,7 +1891,7 @@ export const InvoiceTemplate = forwardRef<HTMLDivElement, InvoiceTemplateProps>(
             </div>
 
             {/* Account Information */}
-            <div className={`${pad.section} border-b border-neutral-200 pb-6 dark:border-neutral-700`}>
+            <div className={`p-4 sm:p-6 border-b border-neutral-200 pb-4 dark:border-neutral-700`}>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="space-y-2 text-sm">
                   <p className="text-neutral-600 dark:text-neutral-400">
@@ -1922,21 +1922,32 @@ export const InvoiceTemplate = forwardRef<HTMLDivElement, InvoiceTemplateProps>(
             </div>
 
             {/* Charges and Credits Table */}
-            <div className={pad.section}>
-              <h2 className="mb-4 text-lg font-bold text-neutral-900 dark:text-white">Charges and Credits:</h2>
+            <div className="p-4 sm:p-6">
+              <h2 className="mb-2 text-sm font-bold text-neutral-900 dark:text-white">Charges and Credits:</h2>
               <div className="overflow-x-auto">
-                <table className="w-full border-collapse text-sm">
+                <table className="w-full border-collapse text-[10px]" style={{ tableLayout: "fixed", width: "100%" }}>
+                  <colgroup>
+                    <col style={{ width: "7%" }} />
+                    <col style={{ width: "8%" }} />
+                    <col style={{ width: "12%" }} />
+                    <col style={{ width: "25%" }} />
+                    <col style={{ width: "8%" }} />
+                    <col style={{ width: "10%" }} />
+                    <col style={{ width: "10%" }} />
+                    <col style={{ width: "8%" }} />
+                    <col style={{ width: "12%" }} />
+                  </colgroup>
                   <thead>
                     <tr className="bg-neutral-700 text-white dark:bg-neutral-600">
-                      <th className="border border-neutral-600 px-3 py-2 text-left font-semibold dark:border-neutral-500">Date</th>
-                      <th className="border border-neutral-600 px-3 py-2 text-left font-semibold dark:border-neutral-500">Type</th>
-                      <th className="border border-neutral-600 px-3 py-2 text-left font-semibold dark:border-neutral-500">Product Type</th>
-                      <th className="border border-neutral-600 px-3 py-2 text-left font-semibold dark:border-neutral-500">Product Name</th>
-                      <th className="border border-neutral-600 px-3 py-2 text-left font-semibold dark:border-neutral-500">Term</th>
-                      <th className="border border-neutral-600 px-3 py-2 text-right font-semibold dark:border-neutral-500">Amount</th>
-                      <th className="border border-neutral-600 px-3 py-2 text-right font-semibold dark:border-neutral-500">Tax</th>
-                      <th className="border border-neutral-600 px-3 py-2 text-left font-semibold dark:border-neutral-500">Tax Type</th>
-                      <th className="border border-neutral-600 px-3 py-2 text-right font-semibold dark:border-neutral-500">Total Charges</th>
+                      <th className="border border-neutral-600 px-1 py-1 text-left font-semibold dark:border-neutral-500 whitespace-nowrap">Date</th>
+                      <th className="border border-neutral-600 px-1 py-1 text-left font-semibold dark:border-neutral-500 whitespace-nowrap">Type</th>
+                      <th className="border border-neutral-600 px-1 py-1 text-left font-semibold dark:border-neutral-500 whitespace-nowrap">Product Type</th>
+                      <th className="border border-neutral-600 px-1 py-1 text-left font-semibold dark:border-neutral-500">Product Name</th>
+                      <th className="border border-neutral-600 px-1 py-1 text-left font-semibold dark:border-neutral-500 whitespace-nowrap">Term</th>
+                      <th className="border border-neutral-600 px-1 py-1 text-right font-semibold dark:border-neutral-500 whitespace-nowrap">Amount</th>
+                      <th className="border border-neutral-600 px-1 py-1 text-right font-semibold dark:border-neutral-500 whitespace-nowrap">Tax</th>
+                      <th className="border border-neutral-600 px-1 py-1 text-left font-semibold dark:border-neutral-500 whitespace-nowrap">Tax Type</th>
+                      <th className="border border-neutral-600 px-1 py-1 text-right font-semibold dark:border-neutral-500 whitespace-nowrap">Total Charges</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -1946,27 +1957,27 @@ export const InvoiceTemplate = forwardRef<HTMLDivElement, InvoiceTemplateProps>(
                       const bgColor = idx % 2 === 0 ? "bg-neutral-50 dark:bg-neutral-800/30" : "bg-white dark:bg-neutral-900";
                       return (
                         <tr key={item.id} className={bgColor}>
-                          <td className="border border-neutral-300 px-3 py-2 text-neutral-700 dark:border-neutral-600 dark:text-neutral-300">
+                          <td className="border border-neutral-300 px-1 py-1 text-neutral-700 dark:border-neutral-600 dark:text-neutral-300 whitespace-nowrap">
                             {new Date(data.invoiceDate).toLocaleDateString("en-US", { month: "2-digit", day: "2-digit", year: "2-digit" })}
                           </td>
-                          <td className="border border-neutral-300 px-3 py-2 text-neutral-700 dark:border-neutral-600 dark:text-neutral-300">Acquisition</td>
-                          <td className="border border-neutral-300 px-3 py-2 text-neutral-700 dark:border-neutral-600 dark:text-neutral-300">
+                          <td className="border border-neutral-300 px-1 py-1 text-neutral-700 dark:border-neutral-600 dark:text-neutral-300 whitespace-nowrap">Acquisition</td>
+                          <td className="border border-neutral-300 px-1 py-1 text-neutral-700 dark:border-neutral-600 dark:text-neutral-300 whitespace-nowrap truncate">
                             {item.description?.split(" - ")[0] || "Service"}
                           </td>
-                          <td className="border border-neutral-300 px-3 py-2 text-neutral-700 dark:border-neutral-600 dark:text-neutral-300">
+                          <td className="border border-neutral-300 px-1 py-1 text-neutral-700 dark:border-neutral-600 dark:text-neutral-300 truncate">
                             {item.description || "—"}
                           </td>
-                          <td className="border border-neutral-300 px-3 py-2 text-neutral-700 dark:border-neutral-600 dark:text-neutral-300">
+                          <td className="border border-neutral-300 px-1 py-1 text-neutral-700 dark:border-neutral-600 dark:text-neutral-300 whitespace-nowrap">
                             {item.quantity > 1 ? `${item.quantity} Year${item.quantity > 1 ? "s" : ""}` : "1 Year"}
                           </td>
-                          <td className="border border-neutral-300 px-3 py-2 text-right text-neutral-700 dark:border-neutral-600 dark:text-neutral-300">
+                          <td className="border border-neutral-300 px-1 py-1 text-right text-neutral-700 dark:border-neutral-600 dark:text-neutral-300 whitespace-nowrap">
                             {formatCurrency(item.amount, data.currency)}
                           </td>
-                          <td className="border border-neutral-300 px-3 py-2 text-right text-neutral-700 dark:border-neutral-600 dark:text-neutral-300">
+                          <td className="border border-neutral-300 px-1 py-1 text-right text-neutral-700 dark:border-neutral-600 dark:text-neutral-300 whitespace-nowrap">
                             {formatCurrency(itemTaxAmount, data.currency)}
                           </td>
-                          <td className="border border-neutral-300 px-3 py-2 text-neutral-700 dark:border-neutral-600 dark:text-neutral-300">—</td>
-                          <td className="border border-neutral-300 px-3 py-2 text-right font-semibold text-neutral-900 dark:border-neutral-600 dark:text-white">
+                          <td className="border border-neutral-300 px-1 py-1 text-neutral-700 dark:border-neutral-600 dark:text-neutral-300 whitespace-nowrap">—</td>
+                          <td className="border border-neutral-300 px-1 py-1 text-right font-semibold text-neutral-900 dark:border-neutral-600 dark:text-white whitespace-nowrap">
                             {formatCurrency(item.amount + itemTaxAmount, data.currency)}
                           </td>
                         </tr>
@@ -1974,17 +1985,17 @@ export const InvoiceTemplate = forwardRef<HTMLDivElement, InvoiceTemplateProps>(
                     })}
                     {/* Total Invoice Amount Row */}
                     <tr className="bg-neutral-100 font-semibold dark:bg-neutral-800">
-                      <td colSpan={5} className="border border-neutral-300 px-3 py-2 text-neutral-900 dark:border-neutral-600 dark:text-white">
+                      <td colSpan={5} className="border border-neutral-300 px-1 py-1 text-neutral-900 dark:border-neutral-600 dark:text-white">
                         Total Invoice Amount
                       </td>
-                      <td className="border border-neutral-300 px-3 py-2 text-right text-neutral-900 dark:border-neutral-600 dark:text-white">
+                      <td className="border border-neutral-300 px-1 py-1 text-right text-neutral-900 dark:border-neutral-600 dark:text-white whitespace-nowrap">
                         {formatCurrency(subtotal, data.currency)}
                       </td>
-                      <td className="border border-neutral-300 px-3 py-2 text-right text-neutral-900 dark:border-neutral-600 dark:text-white">
+                      <td className="border border-neutral-300 px-1 py-1 text-right text-neutral-900 dark:border-neutral-600 dark:text-white whitespace-nowrap">
                         {formatCurrency(taxAmount, data.currency)}
                       </td>
-                      <td className="border border-neutral-300 px-3 py-2 text-neutral-900 dark:border-neutral-600 dark:text-white">—</td>
-                      <td className="border border-neutral-300 px-3 py-2 text-right text-neutral-900 dark:border-neutral-600 dark:text-white">
+                      <td className="border border-neutral-300 px-1 py-1 text-neutral-900 dark:border-neutral-600 dark:text-white whitespace-nowrap">—</td>
+                      <td className="border border-neutral-300 px-1 py-1 text-right text-neutral-900 dark:border-neutral-600 dark:text-white whitespace-nowrap">
                         {formatCurrency(total, data.currency)}
                       </td>
                     </tr>
@@ -1994,30 +2005,37 @@ export const InvoiceTemplate = forwardRef<HTMLDivElement, InvoiceTemplateProps>(
             </div>
 
             {/* Payments Table */}
-            <div className={pad.section}>
-              <h2 className="mb-4 text-lg font-bold text-neutral-900 dark:text-white">Payments:</h2>
+            <div className="p-4 sm:p-6">
+              <h2 className="mb-2 text-sm font-bold text-neutral-900 dark:text-white">Payments:</h2>
               <div className="overflow-x-auto">
-                <table className="w-full border-collapse text-sm">
+                <table className="w-full border-collapse text-[10px]" style={{ tableLayout: "fixed", width: "100%" }}>
+                  <colgroup>
+                    <col style={{ width: "12%" }} />
+                    <col style={{ width: "20%" }} />
+                    <col style={{ width: "18%" }} />
+                    <col style={{ width: "25%" }} />
+                    <col style={{ width: "25%" }} />
+                  </colgroup>
                   <thead>
                     <tr className="bg-neutral-700 text-white dark:bg-neutral-600">
-                      <th className="border border-neutral-600 px-3 py-2 text-left font-semibold dark:border-neutral-500">Date</th>
-                      <th className="border border-neutral-600 px-3 py-2 text-left font-semibold dark:border-neutral-500">Order Number</th>
-                      <th className="border border-neutral-600 px-3 py-2 text-left font-semibold dark:border-neutral-500">Payment Method</th>
-                      <th className="border border-neutral-600 px-3 py-2 text-left font-semibold dark:border-neutral-500">Check/Card#/PayPal ID</th>
-                      <th className="border border-neutral-600 px-3 py-2 text-right font-semibold dark:border-neutral-500">Total Payments</th>
+                      <th className="border border-neutral-600 px-1 py-1 text-left font-semibold dark:border-neutral-500 whitespace-nowrap">Date</th>
+                      <th className="border border-neutral-600 px-1 py-1 text-left font-semibold dark:border-neutral-500 whitespace-nowrap">Order Number</th>
+                      <th className="border border-neutral-600 px-1 py-1 text-left font-semibold dark:border-neutral-500 whitespace-nowrap">Payment Method</th>
+                      <th className="border border-neutral-600 px-1 py-1 text-left font-semibold dark:border-neutral-500 whitespace-nowrap">Check/Card#/PayPal ID</th>
+                      <th className="border border-neutral-600 px-1 py-1 text-right font-semibold dark:border-neutral-500 whitespace-nowrap">Total Payments</th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr className="bg-white dark:bg-neutral-900">
-                      <td className="border border-neutral-300 px-3 py-2 text-neutral-700 dark:border-neutral-600 dark:text-neutral-300">
+                      <td className="border border-neutral-300 px-1 py-1 text-neutral-700 dark:border-neutral-600 dark:text-neutral-300 whitespace-nowrap">
                         {new Date(data.invoiceDate).toLocaleDateString("en-US", { month: "2-digit", day: "2-digit", year: "2-digit" })}
                       </td>
-                      <td className="border border-neutral-300 px-3 py-2 text-neutral-700 dark:border-neutral-600 dark:text-neutral-300">
+                      <td className="border border-neutral-300 px-1 py-1 text-neutral-700 dark:border-neutral-600 dark:text-neutral-300 whitespace-nowrap">
                         {data.invoiceNumber.replace(/[^0-9]/g, "") || "—"}
                       </td>
-                      <td className="border border-neutral-300 px-3 py-2 text-neutral-700 dark:border-neutral-600 dark:text-neutral-300">CreditCard</td>
-                      <td className="border border-neutral-300 px-3 py-2 text-neutral-700 dark:border-neutral-600 dark:text-neutral-300">****0218</td>
-                      <td className="border border-neutral-300 px-3 py-2 text-right font-semibold text-neutral-900 dark:border-neutral-600 dark:text-white">
+                      <td className="border border-neutral-300 px-1 py-1 text-neutral-700 dark:border-neutral-600 dark:text-neutral-300 whitespace-nowrap">CreditCard</td>
+                      <td className="border border-neutral-300 px-1 py-1 text-neutral-700 dark:border-neutral-600 dark:text-neutral-300 whitespace-nowrap">****0218</td>
+                      <td className="border border-neutral-300 px-1 py-1 text-right font-semibold text-neutral-900 dark:border-neutral-600 dark:text-white whitespace-nowrap">
                         {formatCurrency(total, data.currency)}
                       </td>
                     </tr>
@@ -2027,9 +2045,9 @@ export const InvoiceTemplate = forwardRef<HTMLDivElement, InvoiceTemplateProps>(
             </div>
 
             {/* Please Note Section */}
-            <div className={`${pad.section} border-t border-neutral-200 pt-6 dark:border-neutral-700`}>
-              <h2 className="mb-3 text-lg font-bold text-neutral-900 dark:text-white">Please Note:</h2>
-              <ol className="list-decimal space-y-2 pl-5 text-sm text-neutral-600 dark:text-neutral-400">
+            <div className={`p-4 sm:p-6 border-t border-neutral-200 pt-4 dark:border-neutral-700`}>
+              <h2 className="mb-2 text-sm font-bold text-neutral-900 dark:text-white">Please Note:</h2>
+              <ol className="list-decimal space-y-1 pl-5 text-[10px] text-neutral-600 dark:text-neutral-400">
                 <li>The payment information shown may not reflect the payment method used for each transaction, and all billing activity may not be shown here.</li>
                 <li>Order numbers may appear in multiple accounts if an order included services from more than one account.</li>
                 <li>Recent purchases may take 24 to 48 hours to appear in your billing information.</li>
