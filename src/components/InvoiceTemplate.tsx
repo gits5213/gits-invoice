@@ -140,6 +140,8 @@ export const InvoiceTemplate = forwardRef<HTMLDivElement, InvoiceTemplateProps>(
     const isHotel = data.templateId === "hotel";
     const isAirlines = data.templateId === "airlines";
     const isCarRental = data.templateId === "carrental";
+    const isOpenai = data.templateId === "openai";
+    const isBluehost = data.templateId === "bluehost";
 
     const showPaid = data.paid !== false;
     const fullPaidText = `This invoice is full paid by ${data.to.name || "the client"}.`;
@@ -1714,6 +1716,335 @@ export const InvoiceTemplate = forwardRef<HTMLDivElement, InvoiceTemplateProps>(
             </div>
             {data.notes && <div className="mt-6 rounded px-4 py-3 text-sm" style={{ backgroundColor: CARRENTAL_COLORS.lightBg }}><p className="whitespace-pre-wrap">{data.notes}</p></div>}
             <FullPaidBlock align="right" />
+          </>
+        ) : isOpenai ? (
+          /* OpenAI-style layout */
+          <>
+            {/* Header: Company info and Bill to side by side */}
+            <div className={`${pad.section} border-b border-neutral-200 pb-8 dark:border-neutral-700`}>
+              <h1 className="mb-6 text-2xl font-semibold text-neutral-900 dark:text-white">Invoice</h1>
+              
+              <div className="mb-6 grid grid-cols-1 gap-6 sm:grid-cols-2">
+                {/* Company details */}
+                <div className="space-y-1 text-sm text-neutral-600 dark:text-neutral-400">
+                  <p className="font-medium text-neutral-900 dark:text-white">{data.from.name}</p>
+                  {data.from.address && (
+                    <pre className="whitespace-pre-wrap font-sans">{data.from.address}</pre>
+                  )}
+                  {data.from.email && (
+                    <p>{data.from.email}</p>
+                  )}
+                </div>
+                
+                {/* Bill to section */}
+                <div>
+                  <p className="mb-2 text-sm font-medium text-neutral-700 dark:text-neutral-300">Bill to</p>
+                  <p className="font-medium text-neutral-900 dark:text-white">{data.to.name || "—"}</p>
+                  {data.to.address && (
+                    <pre className="mt-1 whitespace-pre-wrap font-sans text-sm text-neutral-600 dark:text-neutral-400">
+                      {data.to.address}
+                    </pre>
+                  )}
+                  {data.to.email && (
+                    <p className="text-sm text-neutral-600 dark:text-neutral-400">{data.to.email}</p>
+                  )}
+                </div>
+              </div>
+
+              {/* Invoice details and amount due */}
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                <div className="space-y-1 text-sm">
+                  <p className="text-neutral-600 dark:text-neutral-400">
+                    <span className="font-medium text-neutral-900 dark:text-white">Invoice number</span> {data.invoiceNumber}
+                  </p>
+                  <p className="text-neutral-600 dark:text-neutral-400">
+                    <span className="font-medium text-neutral-900 dark:text-white">Date of issue</span> {new Date(data.invoiceDate).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
+                  </p>
+                  <p className="text-neutral-600 dark:text-neutral-400">
+                    <span className="font-medium text-neutral-900 dark:text-white">Date due</span> {new Date(data.dueDate).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
+                  </p>
+                </div>
+                <div className="text-right">
+                  <p className="text-lg font-semibold text-neutral-900 dark:text-white">
+                    {formatCurrency(total, data.currency)} {data.currency ?? "USD"} due {new Date(data.dueDate).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
+                  </p>
+                  <p className="mt-2 text-sm font-medium text-neutral-700 dark:text-neutral-300">Pay online</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Items table */}
+            <div className={pad.section}>
+              <table className="w-full border-collapse text-sm">
+                <thead>
+                  <tr className="border-b border-neutral-300 dark:border-neutral-600">
+                    <th className="px-4 py-3 text-left font-medium text-neutral-900 dark:text-white">Description</th>
+                    <th className="px-4 py-3 text-right font-medium text-neutral-900 dark:text-white">Qty</th>
+                    <th className="px-4 py-3 text-right font-medium text-neutral-900 dark:text-white">Unit price</th>
+                    <th className="px-4 py-3 text-right font-medium text-neutral-900 dark:text-white">Tax</th>
+                    <th className="px-4 py-3 text-right font-medium text-neutral-900 dark:text-white">Amount</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {data.items.map((item) => {
+                    const itemTaxRate = data.taxRate ?? 0;
+                    const itemTaxAmount = (itemTaxRate / 100) * item.amount;
+                    return (
+                      <tr key={item.id} className="border-b border-neutral-200 dark:border-neutral-700">
+                        <td className="px-4 py-3 text-neutral-700 dark:text-neutral-300">
+                          {item.description || "—"}
+                        </td>
+                        <td className="px-4 py-3 text-right text-neutral-600 dark:text-neutral-400">
+                          {item.quantity}
+                        </td>
+                        <td className="px-4 py-3 text-right text-neutral-600 dark:text-neutral-400">
+                          {formatCurrency(item.unitPrice, data.currency)}
+                        </td>
+                        <td className="px-4 py-3 text-right text-neutral-600 dark:text-neutral-400">
+                          {itemTaxRate > 0 ? `${itemTaxRate}%` : "—"}
+                        </td>
+                        <td className="px-4 py-3 text-right font-medium text-neutral-900 dark:text-white">
+                          {formatCurrency(item.amount, data.currency)}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Totals section */}
+            <div className={`${pad.section} flex justify-end`}>
+              <div className="w-full max-w-md space-y-2 text-right text-sm">
+                <div className="flex justify-between">
+                  <span className="text-neutral-600 dark:text-neutral-400">Subtotal</span>
+                  <span className="font-medium text-neutral-900 dark:text-white">
+                    {formatCurrency(subtotal, data.currency)}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-neutral-600 dark:text-neutral-400">Total excluding tax</span>
+                  <span className="font-medium text-neutral-900 dark:text-white">
+                    {formatCurrency(subtotal, data.currency)}
+                  </span>
+                </div>
+                {(data.taxRate ?? 0) > 0 && (
+                  <div className="flex justify-between">
+                    <span className="text-neutral-600 dark:text-neutral-400">
+                      Sales Tax{data.to.address?.includes("New York") ? " - New York" : ""} {data.taxRate}% on {formatCurrency(subtotal, data.currency)}
+                    </span>
+                    <span className="font-medium text-neutral-900 dark:text-white">
+                      {formatCurrency(taxAmount, data.currency)}
+                    </span>
+                  </div>
+                )}
+                <div className="flex justify-between border-t border-neutral-300 pt-3 font-semibold dark:border-neutral-600">
+                  <span className="text-neutral-900 dark:text-white">Total</span>
+                  <span className="text-neutral-900 dark:text-white">
+                    {formatCurrency(total, data.currency)}
+                  </span>
+                </div>
+                <div className="flex justify-between border-t border-neutral-300 pt-3 font-semibold dark:border-neutral-600">
+                  <span className="text-neutral-900 dark:text-white">Amount due</span>
+                  <span className="text-neutral-900 dark:text-white">
+                    {formatCurrency(total, data.currency)} {data.currency ?? "USD"}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {data.notes && (
+              <div className="mt-8">
+                <p className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Notes</p>
+                <p className="mt-2 whitespace-pre-wrap text-sm text-neutral-600 dark:text-neutral-400">
+                  {data.notes}
+                </p>
+              </div>
+            )}
+            <FullPaidBlock align="right" />
+          </>
+        ) : isBluehost ? (
+          /* Bluehost-style layout */
+          <>
+            {/* Header: Company name centered, Invoice number right */}
+            <div className={`${pad.section} border-b border-neutral-200 pb-6 dark:border-neutral-700`}>
+              <div className="flex flex-col items-center text-center sm:flex-row sm:justify-between sm:text-left">
+                <div className="mb-4 sm:mb-0">
+                  {data.logo && (
+                    <img
+                      src={data.logo}
+                      alt="Company logo"
+                      className={`mx-auto w-auto object-contain ${logoSizeMap[d.logoSize]} sm:mx-0`}
+                    />
+                  )}
+                  <div className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
+                    <p className="font-semibold text-neutral-900 dark:text-white">{data.from.name}</p>
+                    {data.from.address && (
+                      <pre className="mt-1 whitespace-pre-wrap font-sans">{data.from.address}</pre>
+                    )}
+                  </div>
+                </div>
+                <div className="text-sm font-semibold text-neutral-900 dark:text-white sm:text-right">
+                  Invoice # {data.invoiceNumber}
+                </div>
+              </div>
+            </div>
+
+            {/* Account Information */}
+            <div className={`${pad.section} border-b border-neutral-200 pb-6 dark:border-neutral-700`}>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div className="space-y-2 text-sm">
+                  <p className="text-neutral-600 dark:text-neutral-400">
+                    <span className="font-semibold text-neutral-900 dark:text-white">Account Name:</span> {data.to.name || "—"}
+                  </p>
+                  <p className="text-neutral-600 dark:text-neutral-400">
+                    <span className="font-semibold text-neutral-900 dark:text-white">Account ID:</span> {data.to.phone || "—"}
+                  </p>
+                  <p className="text-neutral-600 dark:text-neutral-400">
+                    <span className="font-semibold text-neutral-900 dark:text-white">Address:</span>{" "}
+                    {data.to.address ? (
+                      <span className="whitespace-pre-wrap">{data.to.address}</span>
+                    ) : (
+                      "—"
+                    )}
+                  </p>
+                </div>
+                <div className="space-y-2 text-sm sm:text-right">
+                  <p className="text-neutral-600 dark:text-neutral-400">
+                    <span className="font-semibold text-neutral-900 dark:text-white">Invoice Date:</span> {new Date(data.invoiceDate).toLocaleDateString("en-US", { month: "2-digit", day: "2-digit", year: "2-digit" })}
+                  </p>
+                  <p className="text-neutral-600 dark:text-neutral-400">
+                    <span className="font-semibold text-neutral-900 dark:text-white">Due Date:</span> {new Date(data.dueDate).toLocaleDateString("en-US", { month: "2-digit", day: "2-digit", year: "2-digit" })}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Charges and Credits Table */}
+            <div className={pad.section}>
+              <h2 className="mb-4 text-lg font-bold text-neutral-900 dark:text-white">Charges and Credits:</h2>
+              <div className="overflow-x-auto">
+                <table className="w-full border-collapse text-sm">
+                  <thead>
+                    <tr className="bg-neutral-700 text-white dark:bg-neutral-600">
+                      <th className="border border-neutral-600 px-3 py-2 text-left font-semibold dark:border-neutral-500">Date</th>
+                      <th className="border border-neutral-600 px-3 py-2 text-left font-semibold dark:border-neutral-500">Type</th>
+                      <th className="border border-neutral-600 px-3 py-2 text-left font-semibold dark:border-neutral-500">Product Type</th>
+                      <th className="border border-neutral-600 px-3 py-2 text-left font-semibold dark:border-neutral-500">Product Name</th>
+                      <th className="border border-neutral-600 px-3 py-2 text-left font-semibold dark:border-neutral-500">Term</th>
+                      <th className="border border-neutral-600 px-3 py-2 text-right font-semibold dark:border-neutral-500">Amount</th>
+                      <th className="border border-neutral-600 px-3 py-2 text-right font-semibold dark:border-neutral-500">Tax</th>
+                      <th className="border border-neutral-600 px-3 py-2 text-left font-semibold dark:border-neutral-500">Tax Type</th>
+                      <th className="border border-neutral-600 px-3 py-2 text-right font-semibold dark:border-neutral-500">Total Charges</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {data.items.map((item, idx) => {
+                      const itemTaxRate = data.taxRate ?? 0;
+                      const itemTaxAmount = (itemTaxRate / 100) * item.amount;
+                      const bgColor = idx % 2 === 0 ? "bg-neutral-50 dark:bg-neutral-800/30" : "bg-white dark:bg-neutral-900";
+                      return (
+                        <tr key={item.id} className={bgColor}>
+                          <td className="border border-neutral-300 px-3 py-2 text-neutral-700 dark:border-neutral-600 dark:text-neutral-300">
+                            {new Date(data.invoiceDate).toLocaleDateString("en-US", { month: "2-digit", day: "2-digit", year: "2-digit" })}
+                          </td>
+                          <td className="border border-neutral-300 px-3 py-2 text-neutral-700 dark:border-neutral-600 dark:text-neutral-300">Acquisition</td>
+                          <td className="border border-neutral-300 px-3 py-2 text-neutral-700 dark:border-neutral-600 dark:text-neutral-300">
+                            {item.description?.split(" - ")[0] || "Service"}
+                          </td>
+                          <td className="border border-neutral-300 px-3 py-2 text-neutral-700 dark:border-neutral-600 dark:text-neutral-300">
+                            {item.description || "—"}
+                          </td>
+                          <td className="border border-neutral-300 px-3 py-2 text-neutral-700 dark:border-neutral-600 dark:text-neutral-300">
+                            {item.quantity > 1 ? `${item.quantity} Year${item.quantity > 1 ? "s" : ""}` : "1 Year"}
+                          </td>
+                          <td className="border border-neutral-300 px-3 py-2 text-right text-neutral-700 dark:border-neutral-600 dark:text-neutral-300">
+                            {formatCurrency(item.amount, data.currency)}
+                          </td>
+                          <td className="border border-neutral-300 px-3 py-2 text-right text-neutral-700 dark:border-neutral-600 dark:text-neutral-300">
+                            {formatCurrency(itemTaxAmount, data.currency)}
+                          </td>
+                          <td className="border border-neutral-300 px-3 py-2 text-neutral-700 dark:border-neutral-600 dark:text-neutral-300">—</td>
+                          <td className="border border-neutral-300 px-3 py-2 text-right font-semibold text-neutral-900 dark:border-neutral-600 dark:text-white">
+                            {formatCurrency(item.amount + itemTaxAmount, data.currency)}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                    {/* Total Invoice Amount Row */}
+                    <tr className="bg-neutral-100 font-semibold dark:bg-neutral-800">
+                      <td colSpan={5} className="border border-neutral-300 px-3 py-2 text-neutral-900 dark:border-neutral-600 dark:text-white">
+                        Total Invoice Amount
+                      </td>
+                      <td className="border border-neutral-300 px-3 py-2 text-right text-neutral-900 dark:border-neutral-600 dark:text-white">
+                        {formatCurrency(subtotal, data.currency)}
+                      </td>
+                      <td className="border border-neutral-300 px-3 py-2 text-right text-neutral-900 dark:border-neutral-600 dark:text-white">
+                        {formatCurrency(taxAmount, data.currency)}
+                      </td>
+                      <td className="border border-neutral-300 px-3 py-2 text-neutral-900 dark:border-neutral-600 dark:text-white">—</td>
+                      <td className="border border-neutral-300 px-3 py-2 text-right text-neutral-900 dark:border-neutral-600 dark:text-white">
+                        {formatCurrency(total, data.currency)}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Payments Table */}
+            <div className={pad.section}>
+              <h2 className="mb-4 text-lg font-bold text-neutral-900 dark:text-white">Payments:</h2>
+              <div className="overflow-x-auto">
+                <table className="w-full border-collapse text-sm">
+                  <thead>
+                    <tr className="bg-neutral-700 text-white dark:bg-neutral-600">
+                      <th className="border border-neutral-600 px-3 py-2 text-left font-semibold dark:border-neutral-500">Date</th>
+                      <th className="border border-neutral-600 px-3 py-2 text-left font-semibold dark:border-neutral-500">Order Number</th>
+                      <th className="border border-neutral-600 px-3 py-2 text-left font-semibold dark:border-neutral-500">Payment Method</th>
+                      <th className="border border-neutral-600 px-3 py-2 text-left font-semibold dark:border-neutral-500">Check/Card#/PayPal ID</th>
+                      <th className="border border-neutral-600 px-3 py-2 text-right font-semibold dark:border-neutral-500">Total Payments</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr className="bg-white dark:bg-neutral-900">
+                      <td className="border border-neutral-300 px-3 py-2 text-neutral-700 dark:border-neutral-600 dark:text-neutral-300">
+                        {new Date(data.invoiceDate).toLocaleDateString("en-US", { month: "2-digit", day: "2-digit", year: "2-digit" })}
+                      </td>
+                      <td className="border border-neutral-300 px-3 py-2 text-neutral-700 dark:border-neutral-600 dark:text-neutral-300">
+                        {data.invoiceNumber.replace(/[^0-9]/g, "") || "—"}
+                      </td>
+                      <td className="border border-neutral-300 px-3 py-2 text-neutral-700 dark:border-neutral-600 dark:text-neutral-300">CreditCard</td>
+                      <td className="border border-neutral-300 px-3 py-2 text-neutral-700 dark:border-neutral-600 dark:text-neutral-300">****0218</td>
+                      <td className="border border-neutral-300 px-3 py-2 text-right font-semibold text-neutral-900 dark:border-neutral-600 dark:text-white">
+                        {formatCurrency(total, data.currency)}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Please Note Section */}
+            <div className={`${pad.section} border-t border-neutral-200 pt-6 dark:border-neutral-700`}>
+              <h2 className="mb-3 text-lg font-bold text-neutral-900 dark:text-white">Please Note:</h2>
+              <ol className="list-decimal space-y-2 pl-5 text-sm text-neutral-600 dark:text-neutral-400">
+                <li>The payment information shown may not reflect the payment method used for each transaction, and all billing activity may not be shown here.</li>
+                <li>Order numbers may appear in multiple accounts if an order included services from more than one account.</li>
+                <li>Recent purchases may take 24 to 48 hours to appear in your billing information.</li>
+                <li>Some products and services are subject to sales tax. Taxes charged reflect the jurisdiction of your business address.</li>
+              </ol>
+            </div>
+
+            {data.notes && (
+              <div className="mt-6">
+                <p className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Additional Notes</p>
+                <p className="mt-2 whitespace-pre-wrap text-sm text-neutral-600 dark:text-neutral-400">
+                  {data.notes}
+                </p>
+              </div>
+            )}
+            <FullPaidBlock align="center" />
           </>
         ) : (
           /* Standard layout */

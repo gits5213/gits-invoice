@@ -45,7 +45,7 @@ export const defaultDesign: InvoiceDesign = {
 };
 
 /** Template presets - each defines a complete design look */
-export type InvoiceTemplateId = "standard" | "minimal" | "receipt" | "aws" | "saucelabs" | "readyapi" | "lambdatest" | "hardware" | "github" | "atlassian" | "airbnb" | "homedepot" | "hotel" | "airlines" | "carrental";
+export type InvoiceTemplateId = "standard" | "minimal" | "receipt" | "aws" | "saucelabs" | "readyapi" | "lambdatest" | "hardware" | "github" | "atlassian" | "airbnb" | "homedepot" | "hotel" | "airlines" | "carrental" | "openai" | "bluehost";
 
 export interface InvoiceTemplatePreset {
   id: InvoiceTemplateId;
@@ -277,6 +277,36 @@ export const invoiceTemplatePresets: InvoiceTemplatePreset[] = [
       density: "standard",
       showSectionLabels: true,
       borderStyle: "accent",
+      logoSize: "medium",
+    },
+  },
+  {
+    id: "openai",
+    name: "OpenAI Style Template",
+    description: "Clean, professional layout with prominent amount due and tax breakdown",
+    design: {
+      layout: "classic",
+      headerStyle: "logo-left",
+      tableStyle: "bordered",
+      fontFamily: "sans",
+      density: "standard",
+      showSectionLabels: true,
+      borderStyle: "neutral",
+      logoSize: "medium",
+    },
+  },
+  {
+    id: "bluehost",
+    name: "Bluehost Style Template",
+    description: "Hosting provider style with charges/credits table and account information",
+    design: {
+      layout: "classic",
+      headerStyle: "logo-centered",
+      tableStyle: "striped",
+      fontFamily: "sans",
+      density: "standard",
+      showSectionLabels: true,
+      borderStyle: "neutral",
       logoSize: "medium",
     },
   },
